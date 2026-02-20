@@ -1,0 +1,20 @@
+[project]
+name = "event-handler"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiokafka>=0.13.0",
+    "alembic>=1.18.4",
+    "asyncpg>=0.31.0",
+    "dishka>=1.8.0",
+    "fastapi>=0.129.0",
+    "locust>=2.43.3",
+    "psycopg2-binary>=2.9.11",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.13.0",
+    "sqlalchemy>=2.0.46",
+    "uvicorn>=0.40.0",
+    "uvloop>=0.22.1",
+]
