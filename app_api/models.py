@@ -16,6 +16,12 @@ class EventStatus(StrEnum):
     FAILED = "failed"
 
 
+class EventType(StrEnum):
+    IO = "io"
+    CPU = "cpu"
+    MIXED = "mixed"
+
+
 class Event(Base):
     __tablename__ = "events"
     
@@ -38,4 +44,6 @@ class Event(Base):
         DateTime(timezone=True),
         nullable=True
     )
+    number_consumers: Mapped[int] = mapped_column(nullable=True, default=0)
+    tasks_types: Mapped[Optional[str]] = mapped_column(SQLEnum(EventType), nullable=True)
     

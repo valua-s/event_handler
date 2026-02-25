@@ -6,9 +6,14 @@ import asyncio
 from app_api.di import AppProvider
 from app_api.routes import events_router
 import uvicorn
+from app_api.config import settings, LOGGING_CONFIG
+import logging
+import logging.config
 
+logger = logging.getLogger(__name__)
 
 async def _main() -> None:
+    logging.config.dictConfig(LOGGING_CONFIG)
     container = make_async_container(AppProvider())
     app = FastAPI(
         title="Event Handler Service",
@@ -22,12 +27,12 @@ async def _main() -> None:
     @app.get("/health")
     async def health_check():
         return {"status": "healthy"}
-    
+    logger.info("Starting API server on port %s", settings.API_PORT)
     await uvicorn.Server(
         uvicorn.Config(
             app,
             host="0.0.0.0",  # noqa: S104
-            port=8000,
+            port=settings.API_PORT,
             server_header=False,
             use_colors=False,
         )

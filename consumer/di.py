@@ -23,7 +23,7 @@ class AppProvider(Provider):
     @provide(scope=Scope.APP)
     def provide_engine(self) -> AsyncEngine:
         """Provide AsyncEngine as application-scoped singleton."""
-        logger.info(f"Creating AsyncEngine with database URL")
+        logger.info("Creating AsyncEngine with database URL")
         return create_async_engine(
             settings.ASYNC_DATABASE_URL,
             echo=settings.DEBUG,

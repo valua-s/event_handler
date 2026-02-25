@@ -1,6 +1,11 @@
 from pydantic import Field, SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+import logging
+import logging.config
+import json
+from datetime import datetime
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -60,4 +65,59 @@ class Settings(BaseSettings):
         return f"{self.KAFKA_HOST}:{self.KAFKA_PORT}"
 
 
+
+class JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        log_record = {
+            "timestamp": datetime.now().isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+
+        if hasattr(record, "event_data"):
+            event_data: dict[str, object] = getattr(record, "event_data")
+            log_record.update(event_data)
+
+        return json.dumps(log_record)
+
+
+LOGGING_CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {
+            "format": "%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+        },
+        "json": {
+            "()": JsonFormatter,
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "console",
+            "level": "INFO",
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "json",
+            "filename": "/app/logs/events_consumer.log",
+            "maxBytes": 10_000_000,
+            "backupCount": 3,
+            "encoding": "utf-8",
+        }
+    },
+    "root": {
+        "level": "INFO",
+        "handlers": ["console", "file"],
+    },
+}
+
+
+def setup_logging():
+    logging.config.dictConfig(LOGGING_CONFIG)
+
 settings = Settings()  # type: ignore[call-arg]
+
+

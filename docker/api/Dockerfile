@@ -14,31 +14,35 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get install -y --no-install-recommends wait-for-it
 
 
-# Security: Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser -u 1001 appuser
-
 WORKDIR /app
 
-# Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Copy dependency files
 COPY pyproject.toml uv.lock* ./
 
-# Install dependencies as root (before switching to appuser)
 RUN uv sync --frozen --no-dev
 
-# Copy application code
 COPY . .
 
-# Create cache directory and change ownership
-RUN mkdir -p /home/appuser/.cache/uv && \
+ARG USER_ID=1001
+ARG GROUP_ID=1001
+
+RUN if ! getent group appuser > /dev/null 2>&1; then \
+        groupadd -r appuser -g ${GROUP_ID}; \
+    fi && \
+    if ! getent passwd appuser > /dev/null 2>&1; then \
+        useradd -r -g appuser -u ${USER_ID} appuser; \
+    fi
+
+RUN mkdir -p /home/appuser/.cache/uv&& \
     chown -R appuser:appuser /app /home/appuser
 
-# Security: Run as non-root user
 USER appuser
 
-# Environment variables
+RUN mkdir /app/logs &&\
+    chown -R appuser:appuser /app/logs
+
+
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \

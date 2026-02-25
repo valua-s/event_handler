@@ -1,4 +1,3 @@
-from alembic.util import err
 from datetime import datetime
 from uuid import UUID
 from typing import Any

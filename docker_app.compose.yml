@@ -11,17 +11,14 @@ services:
     environment:
       - EVENT_HANDLER_SERVICE_IS_DOCKER=true
     ports:
-      - "${EVENT_HANDLER_SERVICE_APP_OUT_PORT:-8000}:8000"
+      - "${EVENT_HANDLER_SERVICE_API_OUT_PORT}:${EVENT_HANDLER_SERVICE_API_PORT}"
     networks:
       - local_db_network
       - local_kafka_network
     restart: on-failure:5
     init: true
-    logging:
-      driver: local
-      options:
-        max-size: "10m"
-        max-file: "3"
+    volumes:
+      - ./logs:/app/logs:rw
     security_opt:
       - no-new-privileges:true
     read_only: true
@@ -47,6 +44,8 @@ services:
     env_file: .env
     environment:
       - EVENT_HANDLER_SERVICE_IS_DOCKER=true
+    volumes:
+      - ./logs:/app/logs:rw
     networks:
       - local_db_network
       - local_kafka_network
@@ -66,7 +65,7 @@ services:
     cap_drop:
       - ALL
     deploy:
-      replicas: 3
+      replicas: 1
 
 networks:
   local_db_network:
@@ -75,3 +74,4 @@ networks:
   local_kafka_network:
     external: true
     name: event_handler_local_kafka_network
+

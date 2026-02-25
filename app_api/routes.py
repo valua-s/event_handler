@@ -1,16 +1,11 @@
-from typing import Any
-from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter
 
-from app_api.models import EventStatus
 from app_api.schemas import (
     EventCreate,
     EventResponse,
-    EventListResponse,
-    EventUpdate,
 )
 from app_api.services import EventService
 

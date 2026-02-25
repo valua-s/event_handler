@@ -5,16 +5,14 @@ import signal
 from aiokafka import AIOKafkaConsumer
 from consumer.di import AppProvider, DBService
 from consumer.worker import ConsumerWorker
+from consumer.config import setup_logging
 import logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
     
 
 async def _main() -> None:
+    setup_logging()
     logger.info("Starting consumer application")
     loop = asyncio.get_event_loop()
     container = make_async_container(AppProvider())

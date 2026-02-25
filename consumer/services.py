@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 
-from consumer.models import Event, EventStatus
+from consumer.models import Event, EventStatus, EventType
 from consumer.schemas import EventUpdate
 
 logger = logging.getLogger(__name__)
@@ -41,6 +41,8 @@ class DBService:
             return None
         
         event.status = data.status
+        event.number_consumers = 1
+        event.tasks_types = EventType.MIXED
         
         # Update processed_at when status changes to PROCESSED or FAILED
         if data.status in (EventStatus.PROCESSED, EventStatus.FAILED):
@@ -56,14 +58,12 @@ class DBService:
             event.error_payload = data.error_payload
         
         await session.commit()
-        await session.refresh(event)
         logger.info(f"Event {event_id} successfully updated with status {data.status}")
-        return event
     
-    async def mark_as_processed(self, event_id: UUID, session: AsyncSession) -> Event | None:
+    async def mark_as_processed(self, event_id: UUID, session: AsyncSession) -> None:
         """Mark event as processed."""
         logger.info(f"Marking event {event_id} as processed")
-        return await self.update_event_status(
+        await self.update_event_status(
             event_id,
             EventUpdate(status=EventStatus.PROCESSED),
             session=session
@@ -85,10 +85,10 @@ class DBService:
         event_id: UUID,
         session: AsyncSession,
         error_payload: dict[str, Any] | None = None
-    ) -> Event | None:
+    ) -> None:
         """Mark event as failed with optional error details."""
         logger.warning(f"Marking event {event_id} as failed")
-        return await self.update_event_status(
+        await self.update_event_status(
             event_id,
             EventUpdate(status=EventStatus.FAILED, error_payload=error_payload if error_payload else {}),
             session=session
