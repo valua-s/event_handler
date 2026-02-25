@@ -13,6 +13,19 @@ A high-performance, asynchronous event handling system built with FastAPI, Kafka
 - **Docker Support**: Docker Compose setup for local development
 - **Load Testing**: Locust integration for performance testing
 
+
+## Avg Time for processing in ms:
+
+- Async IO-bound: ~ 4921 ms
+- CPU-bound (1 process): ~ 24466 ms
+- Mixed (Async IO-bound, CPU-bound) (1 process): ~ 8742 ms
+
+## 95 and 99 % for processing in ms:
+
+- Async IO-bound: ~ 10967 / 11581 ms
+- CPU-bound (1 process): ~ 41948 / 50791 ms
+- Mixed (Async IO-bound, CPU-bound) (1 process): ~ 19730 / 26249 ms
+
 ## Project Structure
 
 ```
@@ -253,15 +266,3 @@ alembic upgrade head
 - **Uvloop**: High-performance event loop
 
 See `pyproject.toml` for complete dependencies.
-
-## Avg Time for processing in ms:
-
-- Async IO-bound: ~ 4921 ms
-- CPU-bound (1 process): ~ 24466 ms
-- Mixed (Async IO-bound, CPU-bound) (1 process): ~ 8742 ms
-
-## 95 and 99 % for processing in ms:
-
-- Async IO-bound: ~ 10967 / 11581 ms
-- CPU-bound (1 process): ~ 41948 / 50791 ms
-- Mixed (Async IO-bound, CPU-bound) (1 process): ~ 19730 / 26249 ms
