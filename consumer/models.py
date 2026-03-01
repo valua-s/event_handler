@@ -11,15 +11,9 @@ class Base(DeclarativeBase):
 
 
 class EventStatus(StrEnum):
-    PENDING = "pending"
     PROCESSED = "processed"
     FAILED = "failed"
-
-
-class EventType(StrEnum):
-    IO = "io"
-    CPU = "cpu"
-    MIXED = "mixed"
+    READ = "read"
 
 
 class Event(Base):
@@ -28,11 +22,10 @@ class Event(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     event_type: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
-    error_payload: Mapped[dict[str, Any]| None] = mapped_column(JSON, nullable=True)
     status: Mapped[EventStatus] = mapped_column(
         SQLEnum(EventStatus, native_enum=False),
         nullable=False,
-        default=EventStatus.PENDING,
+        default=EventStatus.PROCESSED,
         index=True
     )
     created_at: Mapped[datetime] = mapped_column(
@@ -44,5 +37,6 @@ class Event(Base):
         DateTime(timezone=True),
         nullable=True
     )
-    number_consumers: Mapped[int] = mapped_column(nullable=True, default=0)
-    tasks_types: Mapped[Optional[str]] = mapped_column(SQLEnum(EventType), nullable=True)
+    from_service: Mapped[str] = mapped_column(String(64), nullable=False)
+    to_user_login: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    read_at: Mapped[datetime | None] = mapped_column(DateTime())

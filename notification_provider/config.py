@@ -1,9 +1,11 @@
 from pydantic import Field, SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 import logging
 import logging.config
 import json
 from datetime import datetime
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -22,11 +24,12 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = Field(default=5432, ge=1, le=65535)
     POSTGRES_OUT_PORT: int = Field(default=1234, ge=1, le=65535)
     
-    KAFKA_HOST: str
-    KAFKA_PORT: int = Field(default=9092, ge=1, le=65535)
-    TOPIC_NAME: str
+    NOTIFICATION_API_PORT: int = Field(default=8101, ge=1, le=65535)
     
-    API_PORT: int = Field(default=8100, ge=1, le=65535)
+    REDIS_HOST: str
+    REDIS_PORT: int = Field(default=6379, ge=1, le=65535)
+    REDIS_USER: str
+    REDIS_PASSWORD: SecretStr
     
     DEBUG: bool = False
     IS_DOCKER: bool = False
@@ -38,10 +41,10 @@ class Settings(BaseSettings):
     
     @computed_field
     @property
-    def DATABASE_URL(self) -> str:
+    def LOCAL_DATABASE_SYNC_URL(self) -> str:
         return (
             f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD.get_secret_value()}"
-            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+            f"@localhost:{self.POSTGRES_OUT_PORT}/{self.POSTGRES_DB}"
         )
     @computed_field
     @property
@@ -58,11 +61,7 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD.get_secret_value()}"
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
-        
-    @computed_field
-    @property
-    def KAFKA_URL(self) -> str:
-        return f"{self.KAFKA_HOST}:{self.KAFKA_PORT}"
+
 
 
 class JsonFormatter(logging.Formatter):
@@ -101,7 +100,7 @@ LOGGING_CONFIG = {
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "json",
-            "filename": "/app/logs/events_producer.log",
+            "filename": "/app/logs/events_notification.log",
             "maxBytes": 10_000_000,
             "backupCount": 3,
             "encoding": "utf-8",
@@ -114,4 +113,9 @@ LOGGING_CONFIG = {
 }
 
 
+def setup_logging():
+    logging.config.dictConfig(LOGGING_CONFIG)
+
 settings = Settings()  # type: ignore[call-arg]
+
+

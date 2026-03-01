@@ -49,12 +49,9 @@ ENV PATH="/app/.venv/bin:$PATH" \
     UV_CACHE_DIR=/tmp/uv-cache
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:${EVENT_HANDLER_SERVICE_API_PORT}/health || exit 1
 
 
 ENTRYPOINT ["bash", "/app/docker/api/entrypoint.sh"]
 
-CMD ["bash", "/app/docker/api/start.sh"]
-
-# Run application directly with python (since deps are already installed)
-# CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "app_api"]

@@ -47,6 +47,6 @@ ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     UV_CACHE_DIR=/tmp/uv-cache
 
-ENTRYPOINT ["bash", "/app/docker/consumer/entrypoint.sh"]
+ENTRYPOINT ["bash", "/app/docker/notification_provider/entrypoint.sh"]
 
-CMD ["bash", "/app/docker/consumer/start.sh"]
+CMD ["bash", "/app/docker/notification_provider/start.sh"]

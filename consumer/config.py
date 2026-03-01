@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     KAFKA_PORT: int = Field(default=9092, ge=1, le=65535)
     TOPIC_NAME: str
     
+    REDIS_HOST: str
+    REDIS_PORT: int = Field(default=6379, ge=1, le=65535)
+    REDIS_USER: str
+    REDIS_PASSWORD: SecretStr
+    
     DEBUG: bool = False
     IS_DOCKER: bool = False
 

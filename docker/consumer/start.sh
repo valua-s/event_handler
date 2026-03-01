@@ -4,4 +4,4 @@ set -euo pipefail
 
 alembic upgrade head
 
-exec python3 -m app_api
+exec python3 -m consumer

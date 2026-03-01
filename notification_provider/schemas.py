@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 from typing import Any
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict
 
 from consumer.models import EventStatus
 
@@ -14,7 +14,7 @@ class EventCreate(BaseModel):
     event_type: str
     from_service: str
     payload: dict[str, Any]
-    to_user_login: str = Field(..., alias="to_user")
+    to_user_login: str
 
 class EventUpdate(BaseModel):
     """DTO for updating event status."""

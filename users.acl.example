@@ -1,0 +1,90 @@
+# Redis ACL (Access Control List) Configuration Example
+# Copy this file to users.acl and customize user permissions for your environment
+#
+# ACL Format: user <username> on|off >password ~<key patterns> &<channel patterns> +<commands>|-<commands>
+#
+# Flags:
+#   on/off           - Enable/disable user
+#   >password        - Set password (> prefix means SHA256 hash)
+#   ~patterns        - Key patterns user can access (* for all, default is no access)
+#   &patterns        - Channel patterns for pub/sub (* for all, default is no access)
+#   +commands        - Commands allowed (can use @category for command groups)
+#   -commands        - Commands explicitly denied
+#   @all             - All commands
+#   @read            - Read commands
+#   @write           - Write commands
+#   @pubsub          - Pub/Sub commands
+#   @admin           - Admin commands
+#   @dangerous       - Dangerous commands
+#   @connection      - Connection commands
+#   @transaction     - Transaction commands
+#
+
+# ============================================================================
+# Default User (required, cannot be removed)
+# ============================================================================
+
+# Default user - disabled by default for security
+user default off
+
+# ============================================================================
+# Application Users
+# ============================================================================
+
+# Event Handler Notification Service User
+# Allows the notification provider to cache and retrieve event data
+user notification_user on >notification_password_here \
+    ~notification:* \
+    &* \
+    +@all
+
+# Event Handler API Service User (optional)
+# Uncomment and customize if different service needs different permissions
+# user api_service on >api_service_password_here \
+#     ~event:* \
+#     ~cache:* \
+#     &* \
+#     +@read +@write
+
+# ============================================================================
+# Monitoring User (optional)
+# ============================================================================
+
+# Read-only user for monitoring and health checks
+# user monitor on >monitor_password_here \
+#     ~* \
+#     &* \
+#     +info +client +config|get +slowlog|get +latency|* +memory|*
+
+# ============================================================================
+# Development User (development only, remove in production)
+# ============================================================================
+
+# Unrestricted development user - DO NOT USE IN PRODUCTION
+# user dev_user on >dev_password_here \
+#     ~* \
+#     &* \
+#     +@all
+
+# ============================================================================
+# Production Configuration Examples
+# ============================================================================
+
+# Strict production setup - uncomment and customize for production
+#
+# user event_api on >$2a$12$... \
+#     ~events:* \
+#     ~cache:* \
+#     &events.* \
+#     +@read +@write -@admin -@dangerous
+#
+# user notifications on >$2a$12$... \
+#     ~notifications:* \
+#     ~subscribers:* \
+#     &subscriptions.* \
+#     +@read +@write
+#
+# user admin on >$2a$12$... \
+#     ~* \
+#     &* \
+#     +@all

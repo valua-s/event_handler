@@ -1,0 +1,138 @@
+# Redis Configuration Example
+# Copy this file to redis.conf and adjust settings for your environment
+
+# ============================================================================
+# Network Configuration
+# ============================================================================
+
+# Accept connections on all interfaces (use 127.0.0.1 for localhost only)
+bind 0.0.0.0
+
+# TCP listen port
+port 6379
+
+# TCP backlog
+tcp-backlog 511
+
+# How long a client can be idle before closing the connection (in seconds)
+# 0 means disabled
+timeout 0
+
+# TCP keepalive
+tcp-keepalive 300
+
+# ============================================================================
+# General Configuration
+# ============================================================================
+
+# Run Redis in the background (set to 'no' for foreground)
+daemonize no
+
+# Set the server verbosity to specified level
+# Options: debug, verbose, notice, warning
+loglevel notice
+
+# Log output
+# Options: 'stdout' for console, or a filename
+logfile ""
+
+# Number of databases
+databases 16
+
+# ============================================================================
+# Authentication
+# ============================================================================
+
+# Require password for authentication
+# requirepass your_password_here
+
+# User ACL configuration file
+# This file defines users and their permissions
+aclfile /etc/redis/users.acl
+
+# Default behavior: ACL is enabled
+acllog-max-len 128
+
+# ============================================================================
+# Persistence
+# ============================================================================
+
+# Save the DB on disk
+# RDB Snapshots: "save <seconds> <changes>"
+# Examples:
+save 900 1      # Save after 900 seconds (15 min) if 1 key changed
+save 300 10     # Save after 300 seconds (5 min) if 10 keys changed
+save 60 10000   # Save after 60 seconds if 10000 keys changed
+
+# Disable RDB if you want only AOF persistence
+# save ""
+
+# AOF (Append Only File) persistence
+appendonly no
+# appendonly yes
+
+# AOF filename
+appendfilename "appendonly.aof"
+
+# AOF rewrite policy
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+
+# ============================================================================
+# Replication
+# ============================================================================
+
+# Make this instance a replica of another Redis instance
+# replicaof <masterip> <masterport>
+
+# If the master has authentication enabled:
+# masterauth <master-password>
+
+# ============================================================================
+# Memory Management
+# ============================================================================
+
+# Maximum memory Redis can use
+# maxmemory <bytes>
+# Examples: 256mb, 1gb
+
+# Memory eviction policy when max memory is reached
+# Options: noeviction, allkeys-lru, allkeys-lfu, volatile-lru, volatile-lfu, volatile-random, allkeys-random, volatile-ttl
+# maxmemory-policy noeviction
+
+# ============================================================================
+# Client Output Buffer Limits
+# ============================================================================
+
+# For normal clients
+client-output-buffer-limit normal 0 0 0
+
+# For replica clients
+client-output-buffer-limit replica 256mb 64mb 60
+
+# For pubsub clients
+client-output-buffer-limit pubsub 32mb 8mb 60
+
+# ============================================================================
+# Performance Tuning
+# ============================================================================
+
+# Disable the use of the Unix domain socket
+# unixsocket /tmp/redis.sock
+# unixsocketperm 700
+
+# Enable lazy freeing of memory
+lazyfree-lazy-eviction no
+lazyfree-lazy-expire no
+lazyfree-lazy-server-del no
+replica-lazy-flush no
+
+# ============================================================================
+# Security Notes
+# ============================================================================
+
+# For development only, can disable protected mode
+# protected-mode no
+
+# For production, always use ACL with strong passwords
+# See users.acl.example for user configuration examples

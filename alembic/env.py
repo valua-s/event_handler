@@ -9,8 +9,8 @@ from alembic import context
 # sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 # print("Current sys.path:", str(Path(__file__).resolve().parent.parent))
-from app_api.models import Base
-from app_api.config import settings 
+from consumer.models import Base
+from consumer.config import settings 
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

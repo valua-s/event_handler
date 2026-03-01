@@ -28,11 +28,12 @@ services:
     cap_drop:
       - ALL
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${EVENT_HANDLER_SERVICE_API_PORT}/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+  
   consumer:
     build:
       context: .
@@ -49,6 +50,7 @@ services:
     networks:
       - local_db_network
       - local_kafka_network
+      - local_redis_network
     restart: on-failure:5
     init: true
     logging:
@@ -66,6 +68,40 @@ services:
       - ALL
     deploy:
       replicas: 1
+  
+  notification-app:
+    build:
+      context: .
+      dockerfile: docker/notification_provider/Dockerfile
+      cache_from:
+        - python:3.13-slim
+        - ghcr.io/astral-sh/uv:latest
+    env_file: .env
+    environment:
+      - EVENT_HANDLER_SERVICE_IS_DOCKER=true
+    ports:
+      - "${EVENT_HANDLER_SERVICE_NOTIFICATION_API_OUT_PORT}:${EVENT_HANDLER_SERVICE_NOTIFICATION_API_PORT}"
+    networks:
+      - local_db_network
+      - local_redis_network
+    restart: on-failure:5
+    init: true
+    volumes:
+      - ./logs:/app/logs:rw
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.venv/lib/python3.13/site-packages/__pycache__:uid=1001,gid=1001
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${EVENT_HANDLER_SERVICE_NOTIFICATION_API_PORT}/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   local_db_network:
@@ -74,4 +110,6 @@ networks:
   local_kafka_network:
     external: true
     name: event_handler_local_kafka_network
-
+  local_redis_network:
+    driver: bridge
+    name: event_handler_local_redis_network

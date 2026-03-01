@@ -53,8 +53,8 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "kafka-broker-api-versions.sh --bootstrap-server localhost:9092"]
       interval: 10s
-      timeout: 5s
-      start_period: 60s
+      timeout: 10s
+      start_period: 80s
       retries: 5
       
   kafka-ui:
@@ -69,14 +69,34 @@ services:
       - kafka
     networks:
       - local_kafka_network
+  
+  redis:
+    image: redis:latest
+    container_name: ${EVENT_HANDLER_SERVICE_REDIS_HOST}
+    command: redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+    ports:
+      - "${EVENT_HANDLER_SERVICE_REDIS_OUT_PORT}:6379"
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./users.acl:/usr/local/etc/redis/users.acl
+    networks:
+      - local_redis_network
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   kafka-data:
   postgres-data:
+  redis-data:
   
 
 networks:
   local_db_network:
     driver: bridge
   local_kafka_network:
+    driver: bridge
+  local_redis_network:
     driver: bridge
